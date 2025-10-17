@@ -94,8 +94,8 @@ def serialize_animals_to_html(animals_data):
 # --- MAIN EXECUTION BLOCK ---
 
 if __name__ == "__main__":
-	SEARCH_TERM = "Fox"
-
+	SEARCH_TERM = input("Enter a name of an animal: ")
+	SEARCH_TERM = SEARCH_TERM.strip().capitalize()
 	# 1. Retrieve data (one-time)
 	print(f"Fetching data for: {SEARCH_TERM}...")
 	all_animals_data = fetch_animal_data(SEARCH_TERM)
