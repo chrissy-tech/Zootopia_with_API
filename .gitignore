@@ -1,0 +1,19 @@
+# Confidential data and configurations
+.env
+
+# Generated output files
+animals.html
+
+# Python-specific files and folders
+  #Local bytecode files (.pyc, .pyd)
+__pycache__/
+*.py[cod]
+
+# Virtual environments (very important!)
+venv/
+.venv/
+
+# Dependency files
+# Often ignored because they can be reconstructed from requirements.txt
+# pip-installed packages
+*.egg-info/

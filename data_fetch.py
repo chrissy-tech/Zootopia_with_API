@@ -1,27 +1,32 @@
 import json
 import requests
+from dotenv import load_dotenv  # Import the loading function
+import os
 
-# NOTE: Replace 'YOUR_API_KEY' with your actual key from the API provider (e.g., API-Ninjas)
+#Loads environment variables from the .env file
+load_dotenv()
+
+#Reads the API key from the environment variable
 API_URL = "https://api.api-ninjas.com/v1/animals"
-API_KEY = "Anu6EgZVogeKQsg9+UDPIg==f8eKjpMoxZdwTjJl"
+API_KEY = os.getenv("API_KEY")
+
+if not API_KEY:
+	raise ValueError("API_KEY not found. Please check your .env file"
+					 " and ensure it is structured correctly.")
+
 
 def fetch_animal_data(animal_name):
 	"""
-	Fetches animal data from the external API for a given animal name.
-
-	Args:
-		animal_name (str): The name of the animal to search for (e.g., "Fox").
-
-	Returns:
-		list: A list of dictionaries containing
-		animal information, or an empty list on failure.
+	Fetches the animals data for the animal 'animal_name' from the API.
+	Returns: a list of animals, each animal is a dictionary.
 	"""
 	try:
 		headers = {'X-Api-Key': API_KEY}
 		params = {'name': animal_name}
 
-		response = requests.get(API_URL, headers=headers, params=params, timeout=10)
-		response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
+		response = requests.get(API_URL, headers=headers,
+								params=params, timeout=10)
+		response.raise_for_status()  # Raise HTTPError for bad responses
 
 		# The API returns a list of dictionaries directly
 		return response.json()
