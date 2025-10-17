@@ -16,7 +16,7 @@ def animals_information(animals_data):
         characteristics_animal = animal.get("characteristics", {})
         diet_animal = characteristics_animal.get("diet")
         location_animal = animal.get("locations", [])
-        first_location = location_animal[0] if location_animal else "N/A"
+        first_location = location_animal[0] if location_animal else ""
         type_animal = characteristics_animal.get("type")
 
         print(f"Name: {name_animal}")
@@ -26,39 +26,32 @@ def animals_information(animals_data):
             print(f"Type: {type_animal}")
         print("-" * 20)
 
-def generate_html_output(animals_data,
-						 template_path="animals_template.html",
-						 output_path="animals.html"):
+
+def serialize_animals_to_html(animals_data,search_term):
 	"""
-	Fetches animals, serializes them into HTML, and writes the output to a file.
+    Serializes a list of animal dictionaries into HTML list items.
 
-	Args:
-		animals_data (list): A list of animal data fetched from the API.
-		template_path (str): Path to the HTML template file.
-		output_path (str): Path where the final HTML should be written.
-	"""
-	try:
-		# Read the HTML template
-		with open(template_path, "r", encoding="utf-8") as file:
-			template = file.read()
-	except FileNotFoundError:
-		print(f"Error: HTML template not found at {template_path}")
-		return
+    If the list is empty, it returns a custom HTML error message including the search term.
 
-	output_html = serialize_animals_to_html(animals_data)
-	final_html = template.replace("__REPLACE_ANIMALS_INFO__",
-								  output_html)
+    Args:
+        animals_data (list): A list of animal data fetched from the API.
+        search_term (str): The term the user searched for.
 
-	with open(output_path, "w", encoding="utf-8") as file:
-		file.write(final_html)
-	print(f"Successfully generated website: {output_path}")
+    Returns:
+        str: An HTML string containing the rendered list items or an error message.
+    """
 
-
-def serialize_animals_to_html(animals_data):
-	"""Serializes a list of animal dictionaries into HTML list items."""
 	output = ""
 	if not animals_data:
-		return '<li class="cards__item"><div class="card__title">No animals found via API.</div></li>'
+		error_message = (
+			f'<li class="cards__item" style="background-color: #f8d7da; border: 1px solid #f5c6cb;">\n'
+			f'    <h2 style="color: #721c24; text-align: center; margin: 10px;">'
+			f'    🤯 Oh no! The animal "{search_term}" doesn\'t seem to exist in our database.'
+			f'    </h2>\n'
+			f'    <p style="text-align: center; color: #721c24;">Please try searching for another amazing creature!</p>'
+			f'</li>'
+		)
+		return error_message
 
 	for animal in animals_data:
 		# (complete logic for extracting animal data)
@@ -68,7 +61,7 @@ def serialize_animals_to_html(animals_data):
 		type_animal = characteristics_animal.get("type")
 		location_animal = animal.get("locations", [])
 		first_location = location_animal[
-			0] if location_animal else "N/A"
+			0] if location_animal else ""
 		weight_animal = characteristics_animal.get("weight")
 		length_animal = characteristics_animal.get("length")
 
@@ -91,19 +84,48 @@ def serialize_animals_to_html(animals_data):
 	return output
 
 
-# --- MAIN EXECUTION BLOCK ---
+def generate_html_output(animals_data, search_term, # <-- HIER WURDE search_term HINZUGEFÜGT
+                    template_path="animals_template.html",
+                    output_path="animals.html"):
+	"""
+    Serializes animal data into HTML, and writes the final output to a file.
 
+    Args:
+       animals_data (list): A list of animal data fetched from the API.
+       search_term (str): The term the user searched for.
+       template_path (str): Path to the HTML template file.
+       output_path (str): Path where the final HTML should be written.
+    """
+	try:
+		# Read the HTML template
+		with open(template_path, "r", encoding="utf-8") as file:
+			template = file.read()
+	except FileNotFoundError:
+		print(f"Error: HTML template not found at {template_path}")
+		return
+
+	output_html = serialize_animals_to_html(animals_data, search_term)
+	final_html = template.replace("__REPLACE_ANIMALS_INFO__",
+								  output_html)
+
+	with open(output_path, "w", encoding="utf-8") as file:
+		file.write(final_html)
+	print(f"Successfully generated website: {output_path}")
+
+# --- MAIN EXECUTION BLOCK ---
 if __name__ == "__main__":
+	# Ask user for input
 	SEARCH_TERM = input("Enter a name of an animal: ")
 	SEARCH_TERM = SEARCH_TERM.strip().capitalize()
-	# 1. Retrieve data (one-time)
+
+	# Retrieve data (one-time)
 	print(f"Fetching data for: {SEARCH_TERM}...")
 	all_animals_data = fetch_animal_data(SEARCH_TERM)
 
-	# 2. Generate console output
+	# Generate console output
 	print("\n--- Console Output ---")
 	animals_information(all_animals_data)
 
-	# 3. Generate HTML output
+	# Generate HTML output
 	print("\n--- HTML Generation ---")
-	generate_html_output(all_animals_data)
+	generate_html_output(all_animals_data, SEARCH_TERM)
